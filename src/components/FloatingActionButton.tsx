@@ -1,4 +1,4 @@
-import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useEffect, useRef } from 'react';
 import { theme } from '../constants/theme';
 export function FloatingActionButton({ onPress, listening }: { onPress: () => void; listening: boolean }) {
@@ -6,8 +6,8 @@ export function FloatingActionButton({ onPress, listening }: { onPress: () => vo
   useEffect(() => {
     if (!listening) { pulse.setValue(1); return; }
     const animation = Animated.loop(Animated.sequence([
-      Animated.timing(pulse, { toValue: 1.2, duration: 700, useNativeDriver: true }),
-      Animated.timing(pulse, { toValue: 1, duration: 700, useNativeDriver: true })
+      Animated.timing(pulse, { toValue: 1.2, duration: 700, useNativeDriver: Platform.OS !== 'web' }),
+      Animated.timing(pulse, { toValue: 1, duration: 700, useNativeDriver: Platform.OS !== 'web' })
     ]));
     animation.start(); return () => animation.stop();
   }, [listening, pulse]);
