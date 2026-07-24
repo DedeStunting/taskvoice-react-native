@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "TaskVoice",
+    "slug": "taskvoice",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      ["expo-audio", {
+        "microphonePermission": "Allow TaskVoice to record audio so spoken instructions can become tasks."
+      }]
+    ],
+    "ios": { "supportsTablet": true, "bundleIdentifier": "com.aairlabs.taskvoice" },
+    "android": { "package": "com.aairlabs.taskvoice", "adaptiveIcon": { "backgroundColor": "#F4F1EB" } }
+  }
+}
