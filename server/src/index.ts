@@ -4,9 +4,12 @@ import express from 'express';
 import OpenAI from 'openai';
 import { voiceTasksRouter } from './routes/voiceTasks.js';
 
-if (!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is required');
+if (!process.env.GROQ_API_KEY) throw new Error('GROQ_API_KEY is required');
 const app = express(); const port = Number(process.env.PORT ?? 3001);
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const client = new OpenAI({
+  apiKey: process.env.GROQ_API_KEY,
+  baseURL: 'https://api.groq.com/openai/v1'
+});
 app.disable('x-powered-by');
 app.use(cors());
 app.get('/health', (_request, response) => response.json({ status: 'ok' }));

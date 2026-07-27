@@ -2,10 +2,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AddTaskScreen } from '../screens/AddTaskScreen';
 import { TaskListScreen } from '../screens/TaskListScreen';
 import { RootStackParamList } from './navigationTypes';
-import { theme } from '../constants/theme';
+import { useAppTheme } from '../context/ThemeContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 export function AppNavigator() {
+  const { theme } = useAppTheme();
   return (
     <Stack.Navigator screenOptions={{
       headerShadowVisible: false, headerStyle: { backgroundColor: theme.colors.background },

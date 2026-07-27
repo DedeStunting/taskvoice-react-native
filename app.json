@@ -4,13 +4,27 @@
     "slug": "taskvoice",
     "version": "1.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "plugins": [
-      ["expo-audio", {
-        "microphonePermission": "Allow TaskVoice to record audio so spoken instructions can become tasks."
-      }]
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Allow TaskVoice to record audio so spoken instructions can become tasks."
+        }
+      ],
+      "expo-asset",
+      "@react-native-community/datetimepicker",
+      "expo-font"
     ],
-    "ios": { "supportsTablet": true, "bundleIdentifier": "com.aairlabs.taskvoice" },
-    "android": { "package": "com.aairlabs.taskvoice", "adaptiveIcon": { "backgroundColor": "#F4F1EB" } }
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.aairlabs.taskvoice"
+    },
+    "android": {
+      "package": "com.aairlabs.taskvoice",
+      "adaptiveIcon": {
+        "backgroundColor": "#F4F1EB"
+      }
+    }
   }
 }

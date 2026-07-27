@@ -5,8 +5,10 @@ TaskVoice is a polished, local-first React Native task manager for capturing wor
 ## Features
 
 - Create tasks with a required title and optional description
-- Complete, reopen, search, filter, and delete tasks
+- Add due dates with quick picks or the native calendar
+- Complete, reopen, search, filter, sort, and delete tasks
 - Persist all changes locally with AsyncStorage
+- Switch between persisted light and dark themes
 - Record voice with clear permission, listening, processing, success, and error states
 - Securely transcribe and extract multiple tasks through a backend proxy
 - Preserve the full transcript as one task if AI extraction fails
@@ -15,36 +17,42 @@ TaskVoice is a polished, local-first React Native task manager for capturing wor
 
 ## Screenshots
 
-The capture checklist is in [`screenshots/README.md`](screenshots/README.md). Device-generated PNGs should be added there before submission; screenshots are intentionally not fabricated.
+The final capture checklist is in [`screenshots/README.md`](screenshots/README.md). All images must come from the running app on a simulator or physical device.
 
-| Empty task list | Mixed tasks | Add task |
+| Empty task list | Mixed tasks with due dates | Add task |
 |---|---|---|
-| `01-task-list-empty.png` | `02-task-list-mixed.png` | `03-add-task-screen.png` |
+| ![Empty task list](screenshots/01-task-list-empty.png) | ![Mixed tasks](screenshots/02-task-list-mixed.png) | ![Add task screen](screenshots/03-add-task-screen.png) |
 
 | Listening | Voice results |
 |---|---|
-| `04-voice-listening.png` | `05-voice-results.png` |
+| ![Voice listening](screenshots/04-voice-listening.png) | ![Voice results](screenshots/05-voice-results.png) |
+
+| Due-date sorting | Dark theme |
+|---|---|
+| ![Due-date sorting](screenshots/06-due-date-sorting.png) | ![Dark theme](screenshots/07-dark-theme.png) |
 
 ## Stack
 
-- Expo 57, React Native 0.86, React 19, TypeScript
+- Expo 54, React Native 0.81, React 19, TypeScript
 - React Navigation native stack
 - AsyncStorage
 - Expo Audio
 - Node.js, Express, Multer
-- OpenAI `gpt-4o-transcribe` for speech-to-text and `gpt-5.6-luna` structured output for task extraction
+- Groq-hosted `whisper-large-v3` for high-accuracy speech-to-text and `openai/gpt-oss-20b` structured output for task extraction
 - Jest
 
 ## Architecture
 
-The mobile app uses Context plus `useReducer`. Screens call a small task API exposed by `TaskProvider`; the reducer owns deterministic state transitions, while the storage service owns serialization. Hydration must finish before automatic saves begin, preventing the initial empty state from overwriting saved tasks.
+The mobile app uses Context plus `useReducer`. Screens call a small task API exposed by `TaskProvider`; the reducer owns deterministic state transitions, while the storage service owns serialization. Hydration must finish successfully before automatic saves begin, preventing an empty initial state from overwriting saved tasks.
+
+Due dates are stored as local date-only values (`YYYY-MM-DD`) so a deadline does not move to another day when the device timezone changes. Theme preference is stored independently and defaults to the current system appearance on first launch.
 
 Voice processing is deliberately split into two steps:
 
 1. Audio transcription answers “what was said?”
 2. Structured extraction answers “which separate actions were said?”
 
-The API key exists only in the Node server. The mobile bundle receives a public backend URL, never an OpenAI credential. The backend validates file presence, type, and size, requests structured JSON, deduplicates task titles, and falls back to the transcript when extraction fails.
+The API key exists only in the Node server. The mobile bundle receives a public backend URL, never a Groq credential. The backend validates file presence, type, and size, requests structured JSON, deduplicates task titles, and falls back to the transcript when extraction fails.
 
 ## Setup
 
@@ -57,7 +65,7 @@ npm --prefix server install
 cp server/.env.example server/.env
 ```
 
-Set `OPENAI_API_KEY` in `server/.env`. Set `EXPO_PUBLIC_VOICE_API_URL` in the root `.env`:
+Set `GROQ_API_KEY` in `server/.env`. Set `EXPO_PUBLIC_VOICE_API_URL` in the root `.env`:
 
 - iOS simulator: `http://localhost:3001`
 - Android emulator: `http://10.0.2.2:3001`
@@ -97,6 +105,8 @@ Manual release checks:
 6. Record one task, then several actions in one sentence.
 7. Stop the backend and verify the network error.
 8. Search titles/descriptions and exercise all filters.
+9. Add tasks due today, tomorrow, and next week; exercise every sort option.
+10. Switch themes, restart the app, and confirm the selected theme returns.
 
 ## API contract
 
@@ -120,13 +130,15 @@ Manual release checks:
 - Context/reducer is enough for two screens and keeps state transitions testable without Redux ceremony.
 - A single AsyncStorage JSON array is simple and adequate for a personal list. Large datasets or cloud sync would warrant a database.
 - Recorded files are buffered in memory on the server for a small interview app. Production should stream uploads to temporary object storage, authenticate callers, rate-limit, restrict CORS, add request IDs, and apply retention controls.
-- `gpt-5.6-luna` is selected for the small, latency-sensitive extraction step; the model name can later move to configuration if cost/quality experiments require alternatives.
+- Groq keeps both transcription and structured task extraction within its free-plan limits for development and demonstration. Provider limits can change, so a production deployment should monitor usage and make model selection configurable.
 - Search and filters are implemented because they improve the review experience without complicating the task model.
+- Date-only storage avoids timezone drift, while undated tasks stay after dated tasks in due-date sorts.
+- A semantic two-palette theme keeps every screen, modal, navigation surface, and status bar consistent.
 
 ## Known limitations
 
-- No authentication, cloud sync, task editing, due dates, notifications, or offline voice transcription
-- Voice requires the backend, internet access, and a configured OpenAI account
+- No authentication, cloud sync, task editing, notifications, or offline voice transcription
+- Voice requires the backend, internet access, and a configured Groq account
 - Delete confirmation uses the native alert, whose appearance varies by platform
 - Real device screenshots and live voice calls cannot be produced in a source-only environment
 
@@ -147,11 +159,11 @@ src/context       Shared task state and reducer
 src/hooks         Task and recording workflows
 src/services      Persistence and backend client
 src/utils         Pure validation/normalization helpers
-server/src        Secure voice endpoint and OpenAI services
+server/src        Secure voice endpoint and Groq services
 tests             Reducer and validation tests
 screenshots       Submission capture checklist
 ```
 
 ## Privacy
 
-Manual tasks stay in AsyncStorage on the device. Voice audio and its transcript are sent to the configured TaskVoice backend and OpenAI for processing. A production release should present this clearly in an in-app privacy notice and publish a retention policy.
+Manual tasks stay in AsyncStorage on the device. Voice audio and its transcript are sent to the configured TaskVoice backend and Groq for processing. A production release should present this clearly in an in-app privacy notice and publish a retention policy.

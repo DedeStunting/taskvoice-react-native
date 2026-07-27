@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { normaliseVoiceTasks } from '../utils/normaliseVoiceTasks';
 import { VoiceTaskResponse } from '../types/voice';
 
@@ -5,7 +6,16 @@ const API_URL = process.env.EXPO_PUBLIC_VOICE_API_URL?.replace(/\/$/, '');
 export async function processVoiceRecording(uri: string): Promise<VoiceTaskResponse> {
   if (!API_URL) throw new Error('CONFIGURATION');
   const body = new FormData();
-  body.append('audio', { uri, name: 'taskvoice-recording.m4a', type: 'audio/m4a' } as unknown as Blob);
+  if (Platform.OS === 'web') {
+    const audioBlob = await fetch(uri).then(response => response.blob());
+    body.append('audio', audioBlob, 'taskvoice-recording.webm');
+  } else {
+    body.append('audio', {
+      uri,
+      name: 'taskvoice-recording.m4a',
+      type: 'audio/m4a'
+    } as unknown as Blob);
+  }
   let response: Response;
   try {
     response = await fetch(`${API_URL}/api/voice-tasks`, { method: 'POST', body });

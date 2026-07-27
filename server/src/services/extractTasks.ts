@@ -22,7 +22,7 @@ const schema = {
 
 export async function extractTasks(client: OpenAI, transcript: string): Promise<ExtractedTask[]> {
   const response = await client.chat.completions.create({
-    model: 'gpt-5.6-luna',
+    model: 'openai/gpt-oss-20b',
     messages: [
       { role: 'system', content: `Extract only actionable tasks explicitly spoken by the user.
 Split separate actions, but keep objects in one action together: "buy bread and butter" is one task;
