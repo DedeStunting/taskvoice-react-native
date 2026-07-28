@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { EmptyState } from '../components/EmptyState';
 import { FloatingActionButton } from '../components/FloatingActionButton';
@@ -19,13 +19,13 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Tasks'>;
 const filters: { key: TaskFilter; label: string }[] = [
   { key: 'all', label: 'All' },
   { key: 'active', label: 'Active' },
-  { key: 'completed', label: 'Completed' }
+  { key: 'completed', label: 'Done' }
 ];
 
-const sorts: { key: TaskSort; label: string }[] = [
-  { key: 'created-desc', label: 'Newest' },
-  { key: 'due-asc', label: 'Due soon' },
-  { key: 'due-desc', label: 'Due later' }
+const sorts: { key: TaskSort; label: string; description: string }[] = [
+  { key: 'created-desc', label: 'Newest first', description: 'Recently added tasks appear at the top' },
+  { key: 'due-asc', label: 'Due soonest', description: 'The nearest deadlines appear first' },
+  { key: 'due-desc', label: 'Due latest', description: 'Later deadlines appear first' }
 ];
 
 export function TaskListScreen({ navigation }: Props) {
@@ -34,6 +34,7 @@ export function TaskListScreen({ navigation }: Props) {
   const styles = useMemo(() => createStyles(theme), [theme]);
   const [filter, setFilter] = useState<TaskFilter>('all');
   const [sort, setSort] = useState<TaskSort>('created-desc');
+  const [showSort, setShowSort] = useState(false);
   const [query, setQuery] = useState('');
   const voice = useVoiceInput(result => addVoiceTasks(result.tasks));
 
@@ -47,6 +48,9 @@ export function TaskListScreen({ navigation }: Props) {
   }, [tasks, filter, query, sort]);
 
   const completed = tasks.filter(task => task.completed).length;
+  const active = tasks.length - completed;
+  const filterCounts: Record<TaskFilter, number> = { all: tasks.length, active, completed };
+  const selectedSort = sorts.find(item => item.key === sort) ?? sorts[0];
 
   if (!isHydrated) {
     return (
@@ -100,40 +104,49 @@ export function TaskListScreen({ navigation }: Props) {
           placeholderTextColor={theme.colors.muted}
           style={styles.search}
         />
-      </View>
-
-      <View style={styles.filters}>
-        {filters.map(item => (
-          <Pressable
-            key={item.key}
-            accessibilityRole="button"
-            accessibilityState={{ selected: filter === item.key }}
-            onPress={() => setFilter(item.key)}
-            style={[styles.filter, filter === item.key && styles.filterActive]}
-          >
-            <Text style={[styles.filterText, filter === item.key && styles.filterTextActive]}>{item.label}</Text>
+        {!!query && (
+          <Pressable accessibilityRole="button" accessibilityLabel="Clear search" onPress={() => setQuery('')} style={styles.clearSearch}>
+            <Text style={styles.clearSearchText}>×</Text>
           </Pressable>
-        ))}
+        )}
       </View>
 
-      {!!tasks.length && (
-        <View style={styles.sortRow}>
-          <Text style={styles.sortLabel}>SORT</Text>
-          <View style={styles.sortOptions}>
-            {sorts.map(item => (
+      <View style={styles.taskControls}>
+        <View style={styles.filters}>
+          {filters.map(item => {
+            const selected = filter === item.key;
+            return (
               <Pressable
                 key={item.key}
                 accessibilityRole="button"
-                accessibilityState={{ selected: sort === item.key }}
-                onPress={() => setSort(item.key)}
-                style={[styles.sortOption, sort === item.key && styles.sortOptionActive]}
+                accessibilityState={{ selected }}
+                accessibilityLabel={`${item.label}, ${filterCounts[item.key]} tasks`}
+                onPress={() => setFilter(item.key)}
+                style={[styles.filter, selected && styles.filterActive]}
               >
-                <Text style={[styles.sortText, sort === item.key && styles.sortTextActive]}>{item.label}</Text>
+                <Text style={[styles.filterText, selected && styles.filterTextActive]}>{item.label}</Text>
+                <View style={[styles.filterCount, selected && styles.filterCountActive]}>
+                  <Text style={[styles.filterCountText, selected && styles.filterCountTextActive]}>
+                    {filterCounts[item.key]}
+                  </Text>
+                </View>
               </Pressable>
-            ))}
-          </View>
+            );
+          })}
         </View>
-      )}
+        {!!tasks.length && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Sort tasks. Current selection: ${selectedSort.label}`}
+            onPress={() => setShowSort(true)}
+            style={styles.sortButton}
+          >
+            <Text style={styles.sortIcon}>↕</Text>
+            <Text style={styles.sortButtonText} numberOfLines={1}>{selectedSort.label}</Text>
+            <Text style={styles.sortChevron}>⌄</Text>
+          </Pressable>
+        )}
+      </View>
 
       <FlatList
         data={visible}
@@ -148,6 +161,38 @@ export function TaskListScreen({ navigation }: Props) {
 
       <FloatingActionButton listening={voice.status === 'listening'} onPress={voice.start} />
       <VoiceInputModal status={voice.status} error={voice.error} onStop={voice.stop} onDismiss={voice.dismiss} />
+      <Modal visible={showSort} transparent animationType="fade" onRequestClose={() => setShowSort(false)}>
+        <Pressable style={styles.modalBackdrop} onPress={() => setShowSort(false)}>
+          <Pressable accessibilityRole="none" style={styles.sortSheet} onPress={event => event.stopPropagation()}>
+            <View style={styles.sheetHandle} />
+            <Text style={styles.sheetEyebrow}>ORGANIZE</Text>
+            <Text style={styles.sheetTitle}>Sort tasks</Text>
+            <Text style={styles.sheetHelp}>Choose how your task list is ordered.</Text>
+            <View style={styles.sheetOptions}>
+              {sorts.map(item => {
+                const selected = sort === item.key;
+                return (
+                  <Pressable
+                    key={item.key}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}
+                    onPress={() => { setSort(item.key); setShowSort(false); }}
+                    style={[styles.sheetOption, selected && styles.sheetOptionActive]}
+                  >
+                    <View style={styles.sheetOptionCopy}>
+                      <Text style={[styles.sheetOptionTitle, selected && styles.sheetOptionTitleActive]}>{item.label}</Text>
+                      <Text style={styles.sheetOptionDescription}>{item.description}</Text>
+                    </View>
+                    <View style={[styles.radio, selected && styles.radioActive]}>
+                      {selected && <View style={styles.radioDot} />}
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -221,30 +266,119 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
   },
   searchIcon: { color: theme.colors.muted, fontSize: 26, marginTop: -4 },
   search: { flex: 1, paddingHorizontal: 10, paddingVertical: 13, fontSize: 15, color: theme.colors.ink },
-  filters: { flexDirection: 'row', gap: 8, paddingHorizontal: 20, paddingTop: 14, paddingBottom: 10 },
-  filter: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: theme.radius.pill },
-  filterActive: { backgroundColor: theme.colors.primarySoft },
-  filterText: { color: theme.colors.muted, fontSize: 13, fontWeight: '700' },
-  filterTextActive: { color: theme.colors.primary },
-  sortRow: {
+  clearSearch: { width: 42, height: 42, alignItems: 'center', justifyContent: 'center' },
+  clearSearchText: { color: theme.colors.muted, fontSize: 22, lineHeight: 24 },
+  taskControls: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
     paddingHorizontal: 20,
-    paddingBottom: 12
+    paddingVertical: 14
   },
-  sortLabel: { color: theme.colors.muted, fontSize: 9, fontWeight: '900', letterSpacing: 1.1 },
-  sortOptions: { flexDirection: 'row', flex: 1, gap: 6 },
-  sortOption: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: theme.radius.pill,
+  filters: {
+    flex: 1,
+    flexDirection: 'row',
+    padding: 3,
+    borderRadius: 13,
+    backgroundColor: theme.colors.surface,
     borderWidth: 1,
     borderColor: theme.colors.border
   },
-  sortOptionActive: { borderColor: theme.colors.primary, backgroundColor: theme.colors.surface },
-  sortText: { color: theme.colors.muted, fontSize: 11, fontWeight: '700' },
-  sortTextActive: { color: theme.colors.primary },
+  filter: {
+    flex: 1,
+    minHeight: 36,
+    paddingHorizontal: 7,
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5
+  },
+  filterActive: {
+    backgroundColor: theme.colors.primarySoft
+  },
+  filterText: { color: theme.colors.muted, fontSize: 12, fontWeight: '700' },
+  filterTextActive: { color: theme.colors.primary, fontWeight: '800' },
+  filterCount: {
+    minWidth: 19,
+    height: 19,
+    paddingHorizontal: 5,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.background
+  },
+  filterCountActive: { backgroundColor: theme.colors.surface },
+  filterCountText: { color: theme.colors.muted, fontSize: 10, fontWeight: '800' },
+  filterCountTextActive: { color: theme.colors.primary },
+  sortButton: {
+    height: 44,
+    maxWidth: 138,
+    paddingHorizontal: 11,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: 13
+  },
+  sortIcon: { color: theme.colors.primary, fontSize: 16, fontWeight: '800' },
+  sortButtonText: { flexShrink: 1, color: theme.colors.ink, fontSize: 11, fontWeight: '700' },
+  sortChevron: { color: theme.colors.muted, fontSize: 15, marginTop: -3 },
+  modalBackdrop: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: theme.colors.overlay
+  },
+  sortSheet: {
+    backgroundColor: theme.colors.background,
+    borderTopLeftRadius: theme.radius.lg,
+    borderTopRightRadius: theme.radius.lg,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 34
+  },
+  sheetHandle: {
+    alignSelf: 'center',
+    width: 38,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: theme.colors.border,
+    marginBottom: 20
+  },
+  sheetEyebrow: { color: theme.colors.primary, fontSize: 10, fontWeight: '900', letterSpacing: 1.5 },
+  sheetTitle: { color: theme.colors.ink, fontSize: 24, fontWeight: '900', letterSpacing: -.4, marginTop: 6 },
+  sheetHelp: { color: theme.colors.muted, fontSize: 14, marginTop: 5, marginBottom: 18 },
+  sheetOptions: { gap: 9 },
+  sheetOption: {
+    minHeight: 72,
+    paddingHorizontal: 15,
+    paddingVertical: 13,
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12
+  },
+  sheetOptionActive: { borderColor: theme.colors.primary, backgroundColor: theme.colors.primarySoft },
+  sheetOptionCopy: { flex: 1 },
+  sheetOptionTitle: { color: theme.colors.ink, fontSize: 15, fontWeight: '800' },
+  sheetOptionTitleActive: { color: theme.colors.primary },
+  sheetOptionDescription: { color: theme.colors.muted, fontSize: 12, lineHeight: 17, marginTop: 3 },
+  radio: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  radioActive: { borderColor: theme.colors.primary },
+  radioDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: theme.colors.primary },
   list: { paddingHorizontal: 20, paddingBottom: 105 },
   emptyList: { flexGrow: 1, paddingHorizontal: 20, paddingBottom: 105 }
 });
