@@ -5,6 +5,7 @@ TaskVoice is a polished, local-first React Native task manager for capturing wor
 ## Features
 
 - Create tasks with a required title and optional description
+- Edit the title, description, and due date of manual or voice-created tasks
 - Add due dates with quick picks or the native calendar
 - Complete, reopen, search, filter, sort, and delete tasks
 - Persist all changes locally with AsyncStorage
@@ -17,19 +18,24 @@ TaskVoice is a polished, local-first React Native task manager for capturing wor
 
 ## Screenshots
 
-The final capture checklist is in [`screenshots/README.md`](screenshots/README.md). All images must come from the running app on a simulator or physical device.
+These full-screen captures come from the app running in Expo Go on a physical
+iPhone. The complete labeled gallery and asset index are available in
+[`screenshots/README.md`](screenshots/README.md).
 
-| Empty task list | Mixed tasks with due dates | Add task |
+| Empty task list | Mixed completed and incomplete tasks | Add task |
 |---|---|---|
-| ![Empty task list](screenshots/01-task-list-empty.png) | ![Mixed tasks](screenshots/02-task-list-mixed.png) | ![Add task screen](screenshots/03-add-task-screen.png) |
+| <img src="screenshots/01-empty-state-light.png" width="260" alt="TaskVoice empty task list on a physical iPhone"> | <img src="screenshots/03-populated-task-list.png" width="260" alt="TaskVoice list with completed and incomplete tasks"> | <img src="screenshots/02-create-task-form.png" width="260" alt="TaskVoice add-task screen"> |
 
-| Listening | Voice results |
-|---|---|
-| ![Voice listening](screenshots/04-voice-listening.png) | ![Voice results](screenshots/05-voice-results.png) |
+| Voice input active | Tasks produced by voice | Dark theme |
+|---|---|---|
+| <img src="screenshots/08-voice-listening.png" width="260" alt="TaskVoice voice input listening state"> | <img src="screenshots/06-voice-tasks-added.png" width="260" alt="TaskVoice confirmation showing a task produced from voice input"> | <img src="screenshots/07-empty-state-dark.png" width="260" alt="TaskVoice dark theme"> |
 
-| Due-date sorting | Dark theme |
-|---|---|
-| ![Due-date sorting](screenshots/06-due-date-sorting.png) | ![Dark theme](screenshots/07-dark-theme.png) |
+| Active filter | Completed filter | Voice processing |
+|---|---|---|
+| <img src="screenshots/04-active-task-filter.png" width="260" alt="TaskVoice active-task filter"> | <img src="screenshots/05-completed-task-filter.png" width="260" alt="TaskVoice completed-task filter"> | <img src="screenshots/09-voice-processing.png" width="260" alt="TaskVoice transcribing and separating spoken actions"> |
+
+The end-to-end voice flow is also available as a
+[short MP4 screen recording](screenshots/10-voice-task-demo.mp4).
 
 ## Stack
 
@@ -46,6 +52,10 @@ The final capture checklist is in [`screenshots/README.md`](screenshots/README.m
 The mobile app uses Context plus `useReducer`. Screens call a small task API exposed by `TaskProvider`; the reducer owns deterministic state transitions, while the storage service owns serialization. Hydration must finish successfully before automatic saves begin, preventing an empty initial state from overwriting saved tasks.
 
 Due dates are stored as local date-only values (`YYYY-MM-DD`) so a deadline does not move to another day when the device timezone changes. Theme preference is stored independently and defaults to the current system appearance on first launch.
+
+React Navigation provides the required Task List and Add Task experiences. The
+Edit Task route reuses the Add Task form rather than duplicating a third screen
+implementation.
 
 Voice processing is deliberately split into two steps:
 
@@ -107,6 +117,7 @@ Manual release checks:
 8. Search titles/descriptions and exercise all filters.
 9. Add tasks due today, tomorrow, and next week; exercise every sort option.
 10. Switch themes, restart the app, and confirm the selected theme returns.
+11. Edit a manual and a voice-created task; confirm its source and completion state remain intact.
 
 ## API contract
 
@@ -135,16 +146,38 @@ Manual release checks:
 - Date-only storage avoids timezone drift, while undated tasks stay after dated tasks in due-date sorts.
 - A semantic two-palette theme keeps every screen, modal, navigation surface, and status bar consistent.
 
+## Exercise coverage
+
+The implementation covers every mandatory requirement in the July 2026 AAIR
+Labs Developer Exercise:
+
+| Exercise requirement | Implementation |
+|---|---|
+| Add tasks with title and optional description | Validated Add Task form |
+| Complete and reopen tasks | Accessible checkbox control with visual distinction |
+| Delete tasks | Native destructive confirmation |
+| Display all tasks | Persisted `FlatList` task view |
+| Persist between launches | AsyncStorage with guarded hydration |
+| Task List and Add Task navigation | React Navigation native stack |
+| Empty-title and no-task edge cases | Inline validation and dedicated empty state |
+| Voice input from a FAB | Expo Audio recording workflow |
+| Speech-to-text API | Groq-hosted Whisper through a server-side proxy |
+| Split natural-language dictation | Structured task extraction with deduplication and transcript fallback |
+| Required screenshots | Physical-iPhone PNG captures embedded above |
+
+All listed bonus areas are also represented: due dates and sorting, search and
+filtering, a persistent light/dark theme, TypeScript, unit tests, and native
+screen/modal transitions.
+
 ## Known limitations
 
-- No authentication, cloud sync, task editing, notifications, or offline voice transcription
+- No authentication, cloud sync, notifications, or offline voice transcription
 - Voice requires the backend, internet access, and a configured Groq account
 - Delete confirmation uses the native alert, whose appearance varies by platform
-- Real device screenshots and live voice calls cannot be produced in a source-only environment
 
 ## Future improvements
 
-- Task editing and undo deletion
+- Undo deletion and optional task reminders
 - Backend authentication, rate limits, telemetry, and automated route tests
 - End-to-end tests on iOS and Android
 - Configurable language hints and user confirmation before adding extracted tasks
@@ -154,14 +187,14 @@ Manual release checks:
 
 ```text
 src/components    Reusable interface pieces
-src/screens       Two navigation destinations
+src/screens       Task list and reusable add/edit form
 src/context       Shared task state and reducer
 src/hooks         Task and recording workflows
 src/services      Persistence and backend client
 src/utils         Pure validation/normalization helpers
 server/src        Secure voice endpoint and Groq services
 tests             Reducer and validation tests
-screenshots       Submission capture checklist
+screenshots       Physical-device gallery and voice demo
 ```
 
 ## Privacy
