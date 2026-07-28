@@ -15,6 +15,7 @@ export function AppNavigator() {
     }}>
       <Stack.Screen name="Tasks" component={TaskListScreen} options={{ headerShown: false }} />
       <Stack.Screen name="AddTask" component={AddTaskScreen} options={{ title: 'New task' }} />
+      <Stack.Screen name="EditTask" component={AddTaskScreen} options={{ title: 'Edit task' }} />
     </Stack.Navigator>
   );
 }

@@ -153,7 +153,12 @@ export function TaskListScreen({ navigation }: Props) {
         keyExtractor={item => item.id}
         contentContainerStyle={visible.length ? styles.list : styles.emptyList}
         renderItem={({ item }) => (
-          <TaskItem task={item} onToggle={() => toggleTask(item.id)} onDelete={() => deleteTask(item.id)} />
+          <TaskItem
+            task={item}
+            onToggle={() => toggleTask(item.id)}
+            onEdit={() => navigation.navigate('EditTask', { taskId: item.id })}
+            onDelete={() => deleteTask(item.id)}
+          />
         )}
         ListEmptyComponent={<EmptyState filtered={!!tasks.length} />}
         keyboardShouldPersistTaps="handled"

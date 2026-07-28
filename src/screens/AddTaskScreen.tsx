@@ -11,22 +11,26 @@ import { RootStackParamList } from '../navigation/navigationTypes';
 import { addDays, formatDueDate, fromDateOnly, toDateOnly } from '../utils/taskDates';
 import { validateTaskTitle } from '../utils/taskValidation';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'AddTask'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'AddTask' | 'EditTask'>;
 
-export function AddTaskScreen({ navigation }: Props) {
-  const { addTask } = useTasks();
+export function AddTaskScreen({ navigation, route }: Props) {
+  const { tasks, addTask, updateTask } = useTasks();
+  const taskId = route.name === 'EditTask' ? route.params?.taskId : undefined;
+  const existingTask = taskId ? tasks.find(task => task.id === taskId) : undefined;
+  const editing = !!existingTask;
   const { theme } = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [dueDate, setDueDate] = useState<string>();
+  const [title, setTitle] = useState(existingTask?.title ?? '');
+  const [description, setDescription] = useState(existingTask?.description ?? '');
+  const [dueDate, setDueDate] = useState<string | undefined>(existingTask?.dueDate);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const submit = () => {
     const validation = validateTaskTitle(title);
     if (validation) { setError(validation); return; }
-    addTask(title, description, dueDate);
+    if (existingTask) updateTask(existingTask.id, title, description, dueDate);
+    else addTask(title, description, dueDate);
     navigation.goBack();
   };
 
@@ -44,9 +48,13 @@ export function AddTaskScreen({ navigation }: Props) {
   return (
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.root} keyboardShouldPersistTaps="handled">
-        <Text style={styles.eyebrow}>CAPTURE THE NEXT STEP</Text>
-        <Text style={styles.heading}>What needs doing?</Text>
-        <Text style={styles.help}>Keep the title actionable. Add context and a due date when they help.</Text>
+        <Text style={styles.eyebrow}>{editing ? 'REFINE THE DETAILS' : 'CAPTURE THE NEXT STEP'}</Text>
+        <Text style={styles.heading}>{editing ? 'Edit your task' : 'What needs doing?'}</Text>
+        <Text style={styles.help}>
+          {editing
+            ? 'Update the title, add useful context, or adjust the deadline.'
+            : 'Keep the title actionable. Add context and a due date when they help.'}
+        </Text>
 
         <View style={styles.field}>
           <Text style={styles.label}>Task title</Text>
@@ -134,11 +142,11 @@ export function AddTaskScreen({ navigation }: Props) {
 
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Add task"
+          accessibilityLabel={editing ? 'Save task changes' : 'Add task'}
           onPress={submit}
           style={({ pressed }) => [styles.button, pressed && styles.pressed]}
         >
-          <Text style={styles.buttonText}>Add task</Text>
+          <Text style={styles.buttonText}>{editing ? 'Save changes' : 'Add task'}</Text>
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>

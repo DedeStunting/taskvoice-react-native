@@ -8,6 +8,7 @@ import { initialTaskState, taskReducer } from './taskReducer';
 interface TaskContextValue {
   tasks: Task[]; isHydrated: boolean; storageError: string | null;
   addTask: (title: string, description?: string, dueDate?: string) => void;
+  updateTask: (id: string, title: string, description?: string, dueDate?: string) => void;
   addVoiceTasks: (tasks: VoiceTaskCandidate[]) => number;
   toggleTask: (id: string) => void; deleteTask: (id: string) => void;
 }
@@ -43,6 +44,16 @@ export function TaskProvider({ children }: PropsWithChildren) {
       const task = makeTask({ title, description }, 'manual');
       dispatch({ type: 'ADD_TASKS', tasks: [{ ...task, ...(dueDate ? { dueDate } : {}) }] });
     },
+    updateTask: (id, title, description, dueDate) => dispatch({
+      type: 'UPDATE_TASK',
+      id,
+      changes: {
+        title: title.trim(),
+        ...(description?.trim() ? { description: description.trim() } : {}),
+        ...(dueDate ? { dueDate } : {})
+      },
+      at: new Date().toISOString()
+    }),
     addVoiceTasks: candidates => {
       const tasks = candidates.map(item => makeTask(item, 'voice'));
       dispatch({ type: 'ADD_TASKS', tasks }); return tasks.length;

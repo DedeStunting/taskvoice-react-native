@@ -10,6 +10,17 @@ describe('taskReducer', () => {
     .toEqual(['2', '3', '1']));
   it('toggles and timestamps a task', () => expect(taskReducer({ ...initialTaskState, tasks: [task] },
     { type: 'TOGGLE_TASK', id: '1', at: 'later' }).tasks[0]).toMatchObject({ completed: true, updatedAt: 'later' }));
+  it('updates task details without changing its source or completion state', () => expect(taskReducer(
+    { ...initialTaskState, tasks: [{ ...task, source: 'voice', description: 'Old note' }] },
+    { type: 'UPDATE_TASK', id: '1', changes: { title: 'Updated task', dueDate: '2026-02-01' }, at: 'later' }
+  ).tasks[0]).toEqual({
+    ...task,
+    source: 'voice',
+    title: 'Updated task',
+    description: undefined,
+    dueDate: '2026-02-01',
+    updatedAt: 'later'
+  }));
   it('deletes only the matching task', () => expect(taskReducer({ ...initialTaskState, tasks: [task, { ...task, id: '2' }] },
     { type: 'DELETE_TASK', id: '1' }).tasks.map(item => item.id)).toEqual(['2']));
 });

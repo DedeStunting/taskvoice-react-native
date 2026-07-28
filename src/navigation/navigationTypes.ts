@@ -1,1 +1,5 @@
-export type RootStackParamList = { Tasks: undefined; AddTask: undefined };
+export type RootStackParamList = {
+  Tasks: undefined;
+  AddTask: undefined;
+  EditTask: { taskId: string };
+};

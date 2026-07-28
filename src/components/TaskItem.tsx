@@ -5,9 +5,10 @@ import { useAppTheme } from '../context/ThemeContext';
 import { Task } from '../types/task';
 import { formatDueDate, getDueDateState } from '../utils/taskDates';
 
-export function TaskItem({ task, onToggle, onDelete }: {
+export function TaskItem({ task, onToggle, onEdit, onDelete }: {
   task: Task;
   onToggle: () => void;
+  onEdit: () => void;
   onDelete: () => void;
 }) {
   const { theme } = useAppTheme();
@@ -51,15 +52,26 @@ export function TaskItem({ task, onToggle, onDelete }: {
           )}
         </View>
       </View>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`Delete ${task.title}`}
-        hitSlop={12}
-        onPress={confirmDelete}
-        style={styles.delete}
-      >
-        <Text style={styles.deleteText}>×</Text>
-      </Pressable>
+      <View style={styles.actions}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Edit ${task.title}`}
+          hitSlop={8}
+          onPress={onEdit}
+          style={styles.edit}
+        >
+          <Text style={styles.editText}>Edit</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Delete ${task.title}`}
+          hitSlop={8}
+          onPress={confirmDelete}
+          style={styles.delete}
+        >
+          <Text style={styles.deleteText}>×</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -101,6 +113,17 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
   dueText: { color: theme.colors.primary, fontSize: 11, fontWeight: '800' },
   dueTextToday: { color: theme.colors.accent },
   dueTextOverdue: { color: theme.colors.danger },
-  delete: { marginLeft: 10, width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
+  actions: { marginLeft: 8, alignItems: 'center', gap: 5 },
+  edit: {
+    minWidth: 40,
+    height: 28,
+    paddingHorizontal: 8,
+    borderRadius: theme.radius.pill,
+    backgroundColor: theme.colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  editText: { color: theme.colors.primary, fontSize: 11, fontWeight: '800' },
+  delete: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
   deleteText: { color: theme.colors.danger, fontSize: 27, lineHeight: 27, fontWeight: '400' }
 });
