@@ -1,6 +1,12 @@
 import { Task } from '../src/types/task';
 import {
-  addDays, formatDueDate, fromDateOnly, getDueDateState, isDateOnly, sortTasks, toDateOnly
+  addDays,
+  formatDueDate,
+  fromDateOnly,
+  getDueDateState,
+  isDateOnly,
+  sortTasks,
+  toDateOnly
 } from '../src/utils/taskDates';
 
 const makeTask = (id: string, createdAt: string, dueDate?: string): Task => ({

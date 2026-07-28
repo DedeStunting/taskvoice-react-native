@@ -3,7 +3,7 @@ import { VoiceTaskCandidate } from '../types/voice';
 export function normaliseVoiceTasks(input: unknown): VoiceTaskCandidate[] {
   if (!Array.isArray(input)) return [];
   const seen = new Set<string>();
-  return input.flatMap((candidate) => {
+  return input.flatMap(candidate => {
     if (!candidate || typeof candidate !== 'object') return [];
     const raw = candidate as Record<string, unknown>;
     if (typeof raw.title !== 'string') return [];

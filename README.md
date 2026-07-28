@@ -22,16 +22,16 @@ These full-screen captures come from the app running in Expo Go on a physical
 iPhone. The complete labeled gallery and asset index are available in
 [`screenshots/README.md`](screenshots/README.md).
 
-| Empty task list | Mixed completed and incomplete tasks | Add task |
-|---|---|---|
+| Empty task list                                                                                                   | Mixed completed and incomplete tasks                                                                                    | Add task                                                                                    |
+| ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | <img src="screenshots/01-empty-state-light.png" width="260" alt="TaskVoice empty task list on a physical iPhone"> | <img src="screenshots/03-populated-task-list.png" width="260" alt="TaskVoice list with completed and incomplete tasks"> | <img src="screenshots/02-create-task-form.png" width="260" alt="TaskVoice add-task screen"> |
 
-| Voice input active | Tasks produced by voice | Dark theme |
-|---|---|---|
+| Voice input active                                                                                     | Tasks produced by voice                                                                                                            | Dark theme                                                                             |
+| ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | <img src="screenshots/08-voice-listening.png" width="260" alt="TaskVoice voice input listening state"> | <img src="screenshots/06-voice-tasks-added.png" width="260" alt="TaskVoice confirmation showing a task produced from voice input"> | <img src="screenshots/07-empty-state-dark.png" width="260" alt="TaskVoice dark theme"> |
 
-| Active filter | Completed filter | Voice processing |
-|---|---|---|
+| Active filter                                                                                    | Completed filter                                                                                       | Voice processing                                                                                                       |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
 | <img src="screenshots/04-active-task-filter.png" width="260" alt="TaskVoice active-task filter"> | <img src="screenshots/05-completed-task-filter.png" width="260" alt="TaskVoice completed-task filter"> | <img src="screenshots/09-voice-processing.png" width="260" alt="TaskVoice transcribing and separating spoken actions"> |
 
 The end-to-end voice flow is also available as a
@@ -103,6 +103,8 @@ Press `i` for iOS, `a` for Android, or scan the QR code with Expo Go. Restart Ex
 npm run typecheck
 npm test
 npm --prefix server run typecheck
+npm run lint
+npm run format:check
 ```
 
 Manual release checks:
@@ -126,10 +128,7 @@ Manual release checks:
 ```json
 {
   "transcript": "Buy provisions and call Mum",
-  "tasks": [
-    { "title": "Buy provisions" },
-    { "title": "Call Mum" }
-  ]
+  "tasks": [{ "title": "Buy provisions" }, { "title": "Call Mum" }]
 }
 ```
 
@@ -151,19 +150,19 @@ Manual release checks:
 The implementation covers every mandatory requirement in the July 2026 AAIR
 Labs Developer Exercise:
 
-| Exercise requirement | Implementation |
-|---|---|
-| Add tasks with title and optional description | Validated Add Task form |
-| Complete and reopen tasks | Accessible checkbox control with visual distinction |
-| Delete tasks | Native destructive confirmation |
-| Display all tasks | Persisted `FlatList` task view |
-| Persist between launches | AsyncStorage with guarded hydration |
-| Task List and Add Task navigation | React Navigation native stack |
-| Empty-title and no-task edge cases | Inline validation and dedicated empty state |
-| Voice input from a FAB | Expo Audio recording workflow |
-| Speech-to-text API | Groq-hosted Whisper through a server-side proxy |
-| Split natural-language dictation | Structured task extraction with deduplication and transcript fallback |
-| Required screenshots | Physical-iPhone PNG captures embedded above |
+| Exercise requirement                          | Implementation                                                        |
+| --------------------------------------------- | --------------------------------------------------------------------- |
+| Add tasks with title and optional description | Validated Add Task form                                               |
+| Complete and reopen tasks                     | Accessible checkbox control with visual distinction                   |
+| Delete tasks                                  | Native destructive confirmation                                       |
+| Display all tasks                             | Persisted `FlatList` task view                                        |
+| Persist between launches                      | AsyncStorage with guarded hydration                                   |
+| Task List and Add Task navigation             | React Navigation native stack                                         |
+| Empty-title and no-task edge cases            | Inline validation and dedicated empty state                           |
+| Voice input from a FAB                        | Expo Audio recording workflow                                         |
+| Speech-to-text API                            | Groq-hosted Whisper through a server-side proxy                       |
+| Split natural-language dictation              | Structured task extraction with deduplication and transcript fallback |
+| Required screenshots                          | Physical-iPhone PNG captures embedded above                           |
 
 All listed bonus areas are also represented: due dates and sorting, search and
 filtering, a persistent light/dark theme, TypeScript, unit tests, and native

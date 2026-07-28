@@ -29,5 +29,9 @@ function AppContent() {
 }
 
 export default function App() {
-  return <ThemeProvider><AppContent /></ThemeProvider>;
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
+  );
 }

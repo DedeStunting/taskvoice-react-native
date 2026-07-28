@@ -24,15 +24,19 @@ export function ThemeProvider({ children }: PropsWithChildren) {
       .catch(() => undefined);
   }, []);
 
-  const value = useMemo<ThemeContextValue>(() => ({
-    mode,
-    theme: themes[mode],
-    toggleTheme: () => setMode(current => {
-      const next = current === 'light' ? 'dark' : 'light';
-      AsyncStorage.setItem(THEME_STORAGE_KEY, next).catch(() => undefined);
-      return next;
-    })
-  }), [mode]);
+  const value = useMemo<ThemeContextValue>(
+    () => ({
+      mode,
+      theme: themes[mode],
+      toggleTheme: () =>
+        setMode(current => {
+          const next = current === 'light' ? 'dark' : 'light';
+          AsyncStorage.setItem(THEME_STORAGE_KEY, next).catch(() => undefined);
+          return next;
+        })
+    }),
+    [mode]
+  );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }

@@ -5,7 +5,8 @@ import OpenAI from 'openai';
 import { voiceTasksRouter } from './routes/voiceTasks.js';
 
 if (!process.env.GROQ_API_KEY) throw new Error('GROQ_API_KEY is required');
-const app = express(); const port = Number(process.env.PORT ?? 3001);
+const app = express();
+const port = Number(process.env.PORT ?? 3001);
 const client = new OpenAI({
   apiKey: process.env.GROQ_API_KEY,
   baseURL: 'https://api.groq.com/openai/v1'

@@ -5,7 +5,12 @@ import { useAppTheme } from '../context/ThemeContext';
 import { Task } from '../types/task';
 import { formatDueDate, getDueDateState } from '../utils/taskDates';
 
-export function TaskItem({ task, onToggle, onEdit, onDelete }: {
+export function TaskItem({
+  task,
+  onToggle,
+  onEdit,
+  onDelete
+}: {
   task: Task;
   onToggle: () => void;
   onEdit: () => void;
@@ -14,10 +19,11 @@ export function TaskItem({ task, onToggle, onEdit, onDelete }: {
   const { theme } = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const dueState = task.dueDate ? getDueDateState(task.dueDate) : null;
-  const confirmDelete = () => Alert.alert('Delete task?', `"${task.title}" will be removed permanently.`, [
-    { text: 'Cancel', style: 'cancel' },
-    { text: 'Delete', style: 'destructive', onPress: onDelete }
-  ]);
+  const confirmDelete = () =>
+    Alert.alert('Delete task?', `"${task.title}" will be removed permanently.`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: onDelete }
+    ]);
 
   return (
     <View style={[styles.card, task.completed && styles.cardDone]}>
@@ -32,20 +38,28 @@ export function TaskItem({ task, onToggle, onEdit, onDelete }: {
       </Pressable>
       <View style={styles.content}>
         <Text style={[styles.title, task.completed && styles.done]}>{task.title}</Text>
-        {!!task.description && <Text style={[styles.description, task.completed && styles.done]}>{task.description}</Text>}
+        {!!task.description && (
+          <Text style={[styles.description, task.completed && styles.done]}>
+            {task.description}
+          </Text>
+        )}
         <View style={styles.metadata}>
           {task.source === 'voice' && <Text style={styles.source}>VOICE</Text>}
           {!!task.dueDate && (
-            <View style={[
-              styles.dueBadge,
-              dueState === 'overdue' && !task.completed && styles.dueBadgeOverdue,
-              dueState === 'today' && !task.completed && styles.dueBadgeToday
-            ]}>
-              <Text style={[
-                styles.dueText,
-                dueState === 'overdue' && !task.completed && styles.dueTextOverdue,
-                dueState === 'today' && !task.completed && styles.dueTextToday
-              ]}>
+            <View
+              style={[
+                styles.dueBadge,
+                dueState === 'overdue' && !task.completed && styles.dueBadgeOverdue,
+                dueState === 'today' && !task.completed && styles.dueBadgeToday
+              ]}
+            >
+              <Text
+                style={[
+                  styles.dueText,
+                  dueState === 'overdue' && !task.completed && styles.dueTextOverdue,
+                  dueState === 'today' && !task.completed && styles.dueTextToday
+                ]}
+              >
                 {formatDueDate(task.dueDate)}
               </Text>
             </View>
@@ -76,54 +90,66 @@ export function TaskItem({ task, onToggle, onEdit, onDelete }: {
   );
 }
 
-const createStyles = (theme: AppTheme) => StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.md,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: theme.colors.border
-  },
-  cardDone: { opacity: 0.58 },
-  checkbox: {
-    width: 25,
-    height: 25,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: theme.colors.muted,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 13,
-    marginTop: 1
-  },
-  checked: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
-  check: { color: theme.dark ? theme.colors.background : theme.colors.white, fontWeight: '900' },
-  content: { flex: 1 },
-  title: { color: theme.colors.ink, fontSize: 16, lineHeight: 22, fontWeight: '700' },
-  description: { color: theme.colors.muted, fontSize: 14, lineHeight: 20, marginTop: 4 },
-  done: { textDecorationLine: 'line-through' },
-  metadata: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginTop: 8 },
-  source: { color: theme.colors.primary, fontSize: 10, fontWeight: '900', letterSpacing: 1.1 },
-  dueBadge: { borderRadius: theme.radius.pill, backgroundColor: theme.colors.primarySoft, paddingHorizontal: 9, paddingVertical: 4 },
-  dueBadgeToday: { backgroundColor: theme.colors.accentSoft },
-  dueBadgeOverdue: { backgroundColor: theme.colors.dangerSoft },
-  dueText: { color: theme.colors.primary, fontSize: 11, fontWeight: '800' },
-  dueTextToday: { color: theme.colors.accent },
-  dueTextOverdue: { color: theme.colors.danger },
-  actions: { marginLeft: 8, alignItems: 'center', gap: 5 },
-  edit: {
-    minWidth: 40,
-    height: 28,
-    paddingHorizontal: 8,
-    borderRadius: theme.radius.pill,
-    backgroundColor: theme.colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  editText: { color: theme.colors.primary, fontSize: 11, fontWeight: '800' },
-  delete: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
-  deleteText: { color: theme.colors.danger, fontSize: 27, lineHeight: 27, fontWeight: '400' }
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    card: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.md,
+      padding: 16,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: theme.colors.border
+    },
+    cardDone: { opacity: 0.58 },
+    checkbox: {
+      width: 25,
+      height: 25,
+      borderRadius: 8,
+      borderWidth: 2,
+      borderColor: theme.colors.muted,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 13,
+      marginTop: 1
+    },
+    checked: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
+    check: { color: theme.dark ? theme.colors.background : theme.colors.white, fontWeight: '900' },
+    content: { flex: 1 },
+    title: { color: theme.colors.ink, fontSize: 16, lineHeight: 22, fontWeight: '700' },
+    description: { color: theme.colors.muted, fontSize: 14, lineHeight: 20, marginTop: 4 },
+    done: { textDecorationLine: 'line-through' },
+    metadata: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: 8,
+      marginTop: 8
+    },
+    source: { color: theme.colors.primary, fontSize: 10, fontWeight: '900', letterSpacing: 1.1 },
+    dueBadge: {
+      borderRadius: theme.radius.pill,
+      backgroundColor: theme.colors.primarySoft,
+      paddingHorizontal: 9,
+      paddingVertical: 4
+    },
+    dueBadgeToday: { backgroundColor: theme.colors.accentSoft },
+    dueBadgeOverdue: { backgroundColor: theme.colors.dangerSoft },
+    dueText: { color: theme.colors.primary, fontSize: 11, fontWeight: '800' },
+    dueTextToday: { color: theme.colors.accent },
+    dueTextOverdue: { color: theme.colors.danger },
+    actions: { marginLeft: 8, alignItems: 'center', gap: 5 },
+    edit: {
+      minWidth: 40,
+      height: 28,
+      paddingHorizontal: 8,
+      borderRadius: theme.radius.pill,
+      backgroundColor: theme.colors.primarySoft,
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    editText: { color: theme.colors.primary, fontSize: 11, fontWeight: '800' },
+    delete: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
+    deleteText: { color: theme.colors.danger, fontSize: 27, lineHeight: 27, fontWeight: '400' }
+  });
