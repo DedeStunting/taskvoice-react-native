@@ -1,19 +1,50 @@
-# Final screenshot checklist
+# TaskVoice product gallery
 
-Capture these as full-screen PNGs or JPGs from the final build. Keep the same device, orientation, and theme across the main sequence.
+Final captures from the iOS build. All screenshots use the same native portrait
+dimensions (`1290 × 2796`) and are presented without cropping or device mockups.
 
-1. `01-task-list-empty.png` — light theme, **All** selected, no tasks.
-2. `02-task-list-mixed.png` — **All** selected, at least four tasks, a mix of completed/incomplete, manual/voice, descriptions, and due dates.
-3. `03-add-task-screen.png` — title and description filled, due date selected, keyboard dismissed so the full form and button are visible.
-4. `04-voice-listening.png` — listening sheet open with the microphone treatment and **Stop recording** visible.
-5. `05-voice-results.png` — success sheet plus multiple newly created tasks marked **VOICE** behind it.
-6. `06-due-date-sorting.png` — several dated tasks with **Due soon** selected, visibly ordered from earliest to latest.
-7. `07-dark-theme.png` — dark theme with a mixed task list and due-date badges visible.
+## Primary screenshot sequence
 
-Recommended supporting captures:
+| 01 · Onboarding | 02 · Task creation | 03 · Task management |
+|---|---|---|
+| <img src="./01-empty-state-light.png" width="260" alt="TaskVoice light-mode empty state"> | <img src="./02-create-task-form.png" width="260" alt="TaskVoice new-task form with descriptions and due-date controls"> | <img src="./03-populated-task-list.png" width="260" alt="TaskVoice populated task list with voice labels and due dates"> |
+| **Clean Empty State**<br>Focused first-run experience with manual and voice entry points. | **Structured Task Creation**<br>Title, optional context, quick dates, and a custom deadline. | **Complete Task Overview**<br>Mixed task states, voice provenance, deadlines, editing, and sorting. |
 
-8. `08-search-filter.png` — a search query with a clearly narrowed result set.
-9. `09-validation-error.png` — blank task submission showing the inline validation message.
-10. `10-voice-task-list.png` — clean list after dismissing the voice success sheet.
+| 04 · Focus | 05 · Progress | 06 · Voice result |
+|---|---|---|
+| <img src="./04-active-task-filter.png" width="260" alt="TaskVoice list filtered to active tasks"> | <img src="./05-completed-task-filter.png" width="260" alt="TaskVoice list filtered to completed tasks"> | <img src="./06-voice-tasks-added.png" width="260" alt="TaskVoice confirmation after adding a spoken task"> |
+| **Active Task Filtering**<br>A focused view of unfinished work with live filter counts. | **Completed Task Filtering**<br>A clear record of completed work and preserved task details. | **Voice Task Creation Success**<br>Confirmation that spoken actions were separated and added to the list. |
 
-Do not use screenshots taken inside the Photos/Camera viewer, mockup frames, or design previews. Avoid notifications, personal information, and low-battery warnings where practical.
+| 07 · Appearance |
+|---|
+| <img src="./07-empty-state-dark.png" width="260" alt="TaskVoice empty state in dark mode"> |
+| **Dark Mode Experience**<br>The complete visual system adapted for comfortable low-light use. |
+
+## Voice workflow
+
+The screen recording is the primary demonstration of recording, processing, and
+creating a task from speech:
+
+- [Watch the voice task demo](./10-voice-task-demo.mp4)
+
+Supporting stills are retained for documentation:
+
+| Listening | Processing |
+|---|---|
+| <img src="./08-voice-listening.png" width="260" alt="TaskVoice actively listening for spoken tasks"> | <img src="./09-voice-processing.png" width="260" alt="TaskVoice transcribing and separating spoken actions"> |
+| **Voice Capture** | **AI Processing** |
+
+## Asset index
+
+| Asset | Tag | Purpose |
+|---|---|---|
+| `01-empty-state-light.png` | `onboarding` | Primary empty state |
+| `02-create-task-form.png` | `task-creation` | Manual entry and due-date controls |
+| `03-populated-task-list.png` | `task-management` | Main product overview |
+| `04-active-task-filter.png` | `filtering` | Active work |
+| `05-completed-task-filter.png` | `filtering` | Completed work |
+| `06-voice-tasks-added.png` | `voice-result` | Successful voice outcome |
+| `07-empty-state-dark.png` | `appearance` | Dark theme |
+| `08-voice-listening.png` | `voice-supporting` | Recording state |
+| `09-voice-processing.png` | `voice-supporting` | Processing state |
+| `10-voice-task-demo.mp4` | `demo-video` | End-to-end voice workflow |
