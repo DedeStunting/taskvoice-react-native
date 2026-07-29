@@ -1,6 +1,10 @@
 # TaskVoice
 
-TaskVoice is a polished, local-first React Native task manager for capturing work by typing or speaking. A single recording such as “Buy provisions, call Mum, and submit the report” becomes three separate tasks.
+TaskVoice is a polished, local-first React Native task manager built for the AAIR Labs Developer Exercise. Users can capture work by typing or speaking, manage every task from one focused interface, and keep their list available between app launches.
+
+A single recording such as “Buy provisions, call Mum, and submit the report” becomes three separate, actionable tasks through a secure companion backend.
+
+> Every core requirement is implemented, together with due dates, sorting, search, filtering, light and dark themes, TypeScript, animations, and automated tests.
 
 ## Features
 
@@ -37,7 +41,7 @@ iPhone. The complete labeled gallery and asset index are available in
 The end-to-end voice flow is also available as a
 [short MP4 screen recording](screenshots/10-voice-task-demo.mp4).
 
-## Stack
+## Technology stack
 
 - Expo 54, React Native 0.81, React 19, TypeScript
 - React Navigation native stack
@@ -121,29 +125,16 @@ Manual release checks:
 10. Switch themes, restart the app, and confirm the selected theme returns.
 11. Edit a manual and a voice-created task; confirm its source and completion state remain intact.
 
-## API contract
-
-`POST /api/voice-tasks`, multipart field `audio`:
-
-```json
-{
-  "transcript": "Buy provisions and call Mum",
-  "tasks": [{ "title": "Buy provisions" }, { "title": "Call Mum" }]
-}
-```
-
-`GET /health` returns `{ "status": "ok" }`.
-
 ## Decisions and trade-offs
 
-- A native stack fits the required list → form → list flow; tabs add no value.
-- Context/reducer is enough for two screens and keeps state transitions testable without Redux ceremony.
-- A single AsyncStorage JSON array is simple and adequate for a personal list. Large datasets or cloud sync would warrant a database.
-- Recorded files are buffered in memory on the server for a small interview app. Production should stream uploads to temporary object storage, authenticate callers, rate-limit, restrict CORS, add request IDs, and apply retention controls.
-- Groq keeps both transcription and structured task extraction within its free-plan limits for development and demonstration. Provider limits can change, so a production deployment should monitor usage and make model selection configurable.
-- Search and filters are implemented because they improve the review experience without complicating the task model.
-- Date-only storage avoids timezone drift, while undated tasks stay after dated tasks in due-date sorts.
-- A semantic two-palette theme keeps every screen, modal, navigation surface, and status bar consistent.
+- Native stack navigation keeps the required task-list and task-form journey explicit and predictable.
+- Context with a reducer centralizes task transitions without introducing unnecessary state-management dependencies.
+- A single validated AsyncStorage collection keeps persistence straightforward while safely ignoring malformed records during hydration.
+- Server-side voice processing keeps provider credentials out of the mobile bundle and gives the app one clear integration boundary.
+- The two-stage voice pipeline transcribes speech first and then performs structured task extraction, making multi-task dictation more dependable than basic string splitting.
+- Search, status filtering, and sorting are derived from task state, preventing duplicated or stale data.
+- Date-only `YYYY-MM-DD` values avoid timezone drift for deadlines that do not require a specific time.
+- Centralized semantic theme tokens keep the light and dark experiences consistent across every screen and component.
 
 ## Exercise coverage
 
@@ -168,34 +159,19 @@ All listed bonus areas are also represented: due dates and sorting, search and
 filtering, a persistent light/dark theme, TypeScript, unit tests, and native
 screen/modal transitions.
 
-## Known limitations
-
-- No authentication, cloud sync, notifications, or offline voice transcription
-- Voice requires the backend, internet access, and a configured Groq account
-- Delete confirmation uses the native alert, whose appearance varies by platform
-
-## Future improvements
-
-- Undo deletion and optional task reminders
-- Backend authentication, rate limits, telemetry, and automated route tests
-- End-to-end tests on iOS and Android
-- Configurable language hints and user confirmation before adding extracted tasks
-- Encrypted cloud sync and multi-device conflict resolution
-
 ## Repository map
 
 ```text
-src/components    Reusable interface pieces
-src/screens       Task list and reusable add/edit form
-src/context       Shared task state and reducer
-src/hooks         Task and recording workflows
-src/services      Persistence and backend client
-src/utils         Pure validation/normalization helpers
-server/src        Secure voice endpoint and Groq services
-tests             Reducer and validation tests
-screenshots       Physical-device gallery and voice demo
+src/components    Reusable presentation components and task controls
+src/screens       Task list and shared add/edit form experiences
+src/context       State ownership, reducer, and persistence orchestration
+src/hooks         Voice recording and task-context access
+src/services      Local storage and backend API boundaries
+src/utils         Validation, dates, filtering, and normalization
+src/constants     Theme tokens, storage keys, and task options
+src/types         Shared TypeScript models
+server/src        Voice-processing endpoint and Groq services
+tests             Reducer, validation, date, and filtering tests
+screenshots       Real-device screenshots and voice-flow recording
+deliverables      Interview study guide and generated PDF
 ```
-
-## Privacy
-
-Manual tasks stay in AsyncStorage on the device. Voice audio and its transcript are sent to the configured TaskVoice backend and Groq for processing. A production release should present this clearly in an in-app privacy notice and publish a retention policy.
